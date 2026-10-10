@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f4f0">
+  <meta name="description" content="QuoteForge — локальный конструктор счетов и коммерческих предложений для фрилансеров. Суммы считаются точно, документы хранятся в вашем браузере.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>QuoteForge — счета и предложения без лишних сервисов</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="QuoteForge — начало"><span class="brand-mark">Q</span><span>QuoteForge<span class="brand-dot">.</span></span></a>
+    <div class="top-state"><span class="local-dot"></span><span>Документы хранятся только на этом устройстве</span></div>
+    <div class="top-actions">
+      <button class="button button-quiet" id="new-quote">＋ Предложение</button>
+      <button class="button button-primary" id="new-invoice">＋ Новый счёт</button>
+    </div>
+  </header>
+  <main id="top" class="app-shell">
+    <aside class="sidebar" aria-label="Документы">
+      <div class="sidebar-head"><div><p class="eyebrow">ВАША МАСТЕРСКАЯ</p><h1>Документы</h1></div><span id="doc-count" class="count-pill">0</span></div>
+      <div class="doc-list" id="doc-list"></div>
+      <div class="sidebar-foot"><span class="lock-icon">◈</span><span>Нет аккаунта.<br>Ничего не отправляется в сеть.</span></div>
+    </aside>
+    <section class="editor-area" aria-label="Редактор документа">
+      <div class="toolbar">
+        <div><p class="eyebrow" id="doc-kind-label">СЧЁТ · ЧЕРНОВИК</p><h2 id="doc-heading">Новый документ</h2></div>
+        <div class="toolbar-actions">
+          <span class="saved-state" id="save-status">● Сохранено</span>
+          <button class="icon-button" id="duplicate-doc" title="Создать копию" aria-label="Создать копию">▣</button>
+          <button class="icon-button" id="export-doc" title="Экспорт JSON" aria-label="Экспорт JSON">⇩</button>
+          <button class="icon-button" id="import-doc" title="Импорт JSON" aria-label="Импорт JSON">⇧</button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden>
+          <button class="button button-dark" id="print-doc">Печать / PDF <span>↗</span></button>
+        </div>
+      </div>
+      <div class="work-grid">
+        <div class="form-column">
+          <section class="panel document-settings">
+            <div class="panel-title"><span class="step">01</span><div><h3>Основное</h3><p>Тип, номер и сроки документа</p></div></div>
+            <div class="field-grid three">
+              <label>Тип документа<select data-field="type" id="type-select"><option value="invoice">Счёт</option><option value="quote">Коммерческое предложение</option></select></label>
+              <label>Номер<input data-field="number" id="number-field" maxlength="40"></label>
+              <label>Валюта<select data-field="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>AZN</option><option>RUB</option><option>TRY</option><option>CAD</option><option>AUD</option></select></label>
+              <label>Дата выпуска<input data-field="date" type="date"></label>
+              <label>Оплатить до / действительно до<input data-field="dueDate" type="date"></label>
+              <label>Скидка<select data-discount-type><option value="fixed">Сумма</option><option value="percent">Процент</option></select></label>
+              <label>Размер скидки<input data-discount-value type="number" min="0" step="0.01" value="0"></label>
+              <label>Налог, %<input data-field="taxRate" type="number" min="0" max="100" step="0.01" placeholder="Не добавлять"></label>
+            </div>
+          </section>
+          <section class="panel parties-panel">
+            <div class="panel-title"><span class="step">02</span><div><h3>Участники</h3><p>Кто выставляет и кто получает документ</p></div></div>
+            <div class="party-grid">
+              <div class="party-card"><span class="party-label">ОТ КОГО</span><label>Имя или компания<input data-party="from" data-key="name" placeholder="Например, North Studio"></label><label>Email<input data-party="from" data-key="email" type="email" placeholder="you@example.com"></label><label>Адрес<input data-party="from" data-key="address" placeholder="Город, страна"></label></div>
+              <div class="party-card"><span class="party-label">ДЛЯ КОГО</span><label>Имя или компания<input data-party="to" data-key="name" placeholder="Имя клиента"></label><label>Email<input data-party="to" data-key="email" type="email" placeholder="client@example.com"></label><label>Адрес<input data-party="to" data-key="address" placeholder="Город, страна"></label></div>
+            </div>
+          </section>
+          <section class="panel items-panel">
+            <div class="panel-title items-title"><span class="step">03</span><div><h3>Работы и услуги</h3><p>Добавьте позиции, количество и цену</p></div><button class="button button-outline" id="add-item">＋ Добавить позицию</button></div>
+            <div class="line-head"><span>ОПИСАНИЕ</span><span>КОЛ-ВО</span><span>ЦЕНА</span><span>СУММА</span><span></span></div>
+            <div id="line-items"></div>
+          </section>
+          <section class="panel notes-panel">
+            <div class="panel-title"><span class="step">04</span><div><h3>Примечание</h3><p>Краткие условия или комментарий клиенту</p></div></div>
+            <label class="full-label"><span>Текст внизу документа</span><textarea data-field="notes" rows="3" placeholder="Например: Спасибо за сотрудничество!"></textarea></label>
+          </section>
+          <div class="editor-note"><span>i</span><p>Перед отправкой проверьте реквизиты, валюту, сроки и применимые правила выставления счетов в вашей стране.</p></div>
+        </div>
+        <div class="preview-column">
+          <div class="preview-caption"><span>ПРЕДПРОСМОТР</span><span class="live-preview"><i></i> обновляется сразу</span></div>
+          <article class="preview-sheet" id="preview-sheet" aria-label="Предпросмотр документа"></article>
+          <p class="preview-hint">Для сохранения в PDF нажмите «Печать / PDF» и выберите PDF-принтер браузера.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

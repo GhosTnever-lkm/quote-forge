@@ -1,0 +1,11 @@
+{
+  "name": "quoteforge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test",
+    "check": "node --check core.js && node --check app.js && node --test"
+  }
+}
