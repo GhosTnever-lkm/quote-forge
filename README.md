@@ -2,6 +2,8 @@
 
 QuoteForge is a local-first invoice and quote builder for independent freelancers. Create a document, add work items, apply a fixed or percentage discount, optionally add tax, and see a print-ready preview update as you edit.
 
+![QuoteForge: invoice and quote builder](docs/screenshot.png)
+
 ## Run locally
 
 Requires Node.js 20 or later. From this folder run:
