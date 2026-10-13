@@ -4,6 +4,8 @@ const MONEY_SCALE = 2;
 const QUANTITY_SCALE = 6;
 const RATE_SCALE = 6;
 const MAX_DECIMAL_LENGTH = 128;
+// Keep enough precision in dollar-valued Numbers for formatting cents safely.
+const MAX_SAFE_CENTS_AS_NUMBER = BigInt(Math.floor(Number.MAX_SAFE_INTEGER / 100));
 
 function decimalToScaledInt(value, scale) {
   if (typeof value !== 'string' && typeof value !== 'number') throw new TypeError('Expected a decimal string or number');
@@ -132,7 +134,11 @@ function calculateTotals(lineItems, discount = { type: 'fixed', value: 0 }, taxR
   }
 
   const totalCents = taxableCents + taxCents;
-  const toNumber = (cents) => Number(centsToDecimal(cents));
+  const toNumber = (cents) => {
+    const decimal = centsToDecimal(cents);
+    if (cents > MAX_SAFE_CENTS_AS_NUMBER || cents < -MAX_SAFE_CENTS_AS_NUMBER) return decimal;
+    return Number(decimal);
+  };
   return {
     subtotal: toNumber(subtotalCents), discount: toNumber(discountCents), taxable: toNumber(taxableCents),
     tax: toNumber(taxCents), total: toNumber(totalCents),

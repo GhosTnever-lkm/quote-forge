@@ -20,7 +20,7 @@ Then open `http://127.0.0.1:4173`. The app also works as a static site on GitHub
 - Line items with fractional quantities, fixed or percentage discounts, and an optional tax rate.
 - Live totals and a paper-style print view. Use the browser's print dialog to save as PDF; the app does not generate or upload PDFs itself.
 - Multiple local drafts, duplicate, JSON import/export, and browser print.
-- Integer-cent arithmetic with decimal parsing and explicit half-away-from-zero rounding; a very large rounded value is returned as a decimal string to avoid silently losing precision.
+- Integer-cent arithmetic with decimal parsing and explicit half-away-from-zero rounding; totals beyond safe cent precision remain decimal strings through currency formatting to avoid silently losing precision.
 - Local storage only. No accounts, server-side document handling, analytics, external fonts, payment processing, or network calls from the app.
 
 ## Data and limitations

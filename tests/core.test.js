@@ -40,6 +40,14 @@ test('keeps large decimal money exact in rounding and currency formatting', () =
   assert.match(core.formatCurrency('9007199254740993.27', 'USD', 'en-US'), /9,007,199,254,740,993\.27/);
 });
 
+test('keeps very large invoice totals exact through currency formatting', () => {
+  const totals = core.calculateTotals([{ description: 'Consulting', quantity: '1', unitPrice: '9007199254740993.27' }]);
+  assert.equal(totals.subtotal, '9007199254740993.27');
+  assert.equal(totals.total, '9007199254740993.27');
+  assert.equal(totals.totalCents, '900719925474099327');
+  assert.equal(core.formatCurrency(totals.total, 'USD', 'en-US'), '$9,007,199,254,740,993.27');
+});
+
 test('generates document numbers with a stable prefix/date shape and avoids supplied duplicates', () => {
   const date = new Date('2026-10-10T12:00:00Z');
   const first = core.generateDocumentNumber('inv/!', date);
