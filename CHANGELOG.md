@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 - 2026-10-25
+
+- Include the README screenshot in release ZIPs and guard packaged local image references with a regression test.
+- Keep the npm package version, standalone VERSION, and current changelog heading aligned in tests.
+
 ## 0.1.2 - 2026-10-13
 
 - Preserve exact cents in very large invoice and quote totals through display formatting.

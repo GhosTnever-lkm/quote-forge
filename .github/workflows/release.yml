@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v7
       - name: Package app
         run: |
-          zip -r "QuoteForge-${GITHUB_REF_NAME}.zip" index.html app.js core.js styles.css server.mjs package.json README.md LICENSE CHANGELOG.md VERSION assets tests .github
+          zip -r "QuoteForge-${GITHUB_REF_NAME}.zip" index.html app.js core.js styles.css server.mjs package.json README.md LICENSE CHANGELOG.md VERSION assets tests .github docs
           sha256sum "QuoteForge-${GITHUB_REF_NAME}.zip" > "QuoteForge-${GITHUB_REF_NAME}.sha256"
       - uses: softprops/action-gh-release@v3
         with:
