@@ -1,7 +1,39 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const core = require('../core.js');
+
+test('release package includes every local image referenced by the README', () => {
+  const root = path.join(__dirname, '..');
+  const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+  const workflow = fs.readFileSync(path.join(root, '.github/workflows/release.yml'), 'utf8');
+  const packageCommand = workflow.split(/\r?\n/).find((line) => /^\s+zip -r /.test(line));
+  assert.ok(packageCommand, 'release workflow must define its ZIP package inputs');
+
+  const imagePaths = [...readme.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)]
+    .map((match) => match[1])
+    .filter((imagePath) => !/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(imagePath));
+  assert.ok(imagePaths.length > 0, 'README should include a local product screenshot');
+
+  for (const imagePath of imagePaths) {
+    const normalizedPath = decodeURIComponent(imagePath.split(/[?#]/, 1)[0]);
+    assert.ok(fs.existsSync(path.join(root, normalizedPath)), `README image must exist: ${normalizedPath}`);
+    const packageRoot = normalizedPath.split(/[\\/]/, 1)[0];
+    assert.match(packageCommand, new RegExp(`(?:^|\\s)${packageRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s|$)`), `release ZIP must include ${packageRoot}`);
+  }
+});
+
+test('package, standalone version, and changelog identify the same release', () => {
+  const root = path.join(__dirname, '..');
+  const packageVersion = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
+  const standaloneVersion = fs.readFileSync(path.join(root, 'VERSION'), 'utf8').trim();
+  const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
+  assert.equal(packageVersion, standaloneVersion);
+  const firstReleaseHeading = changelog.match(/^## ([^\r\n]+)/m)?.[1];
+  assert.ok(firstReleaseHeading?.startsWith(`${packageVersion} - `));
+});
 
 test('rounds decimal money using half-away-from-zero, including numeric input artifacts', () => {
   assert.equal(core.roundMoney('1.005'), 1.01);
